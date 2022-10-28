@@ -54,14 +54,15 @@ public class Articolo {
 	public Articolo() {
 		super();
 	}
-
-	public Articolo(Long id, String descrizione, String numeroSeriale, Integer prezzoSingolo, Date dataInserimento) {
+	
+	public Articolo(String descrizione, String numeroSeriale, Integer prezzoSingolo, Date dataInserimento,
+			Ordine ordine) {
 		super();
-		this.id = id;
 		this.descrizione = descrizione;
 		this.numeroSeriale = numeroSeriale;
 		this.prezzoSingolo = prezzoSingolo;
 		this.dataInserimento = dataInserimento;
+		this.ordine = ordine;
 	}
 
 	public Long getId() {

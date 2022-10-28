@@ -20,7 +20,7 @@ public interface CategoriaService {
 
 	public void rimuovi(Long idCategoria) throws Exception;
 	
-	public void aggiungiArticolo(Categoria appInstance, Articolo articoloInstance) throws Exception;
+	public void aggiungiArticolo(Categoria categoriaInstance, Articolo articoloInstance) throws Exception;
 	
 	public void rimuoviCategoriaDallaTabellaDiJoin(Long idCategoria) throws Exception;
 	

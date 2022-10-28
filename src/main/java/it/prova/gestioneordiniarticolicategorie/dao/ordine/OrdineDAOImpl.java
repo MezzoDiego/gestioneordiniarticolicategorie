@@ -3,7 +3,9 @@ package it.prova.gestioneordiniarticolicategorie.dao.ordine;
 import java.util.List;
 
 import javax.persistence.EntityManager;
+import javax.persistence.TypedQuery;
 
+import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 public class OrdineDAOImpl implements OrdineDAO{
@@ -18,38 +20,57 @@ public class OrdineDAOImpl implements OrdineDAO{
 	
 	@Override
 	public List<Ordine> list() throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		return entityManager.createQuery("from Ordine", Ordine.class).getResultList();
+
 	}
 
 	@Override
 	public Ordine get(Long id) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		return entityManager.find(Ordine.class, id);
+
 	}
 
 	@Override
-	public void update(Ordine o) throws Exception {
-		// TODO Auto-generated method stub
+	public void update(Ordine ordineInstance) throws Exception {
+		if (ordineInstance == null) {
+			throw new Exception("Problema valore in input");
+		}
+		ordineInstance = entityManager.merge(ordineInstance);
 		
 	}
 
 	@Override
-	public void insert(Ordine o) throws Exception {
-		// TODO Auto-generated method stub
+	public void insert(Ordine ordineInstance) throws Exception {
+		if (ordineInstance == null) {
+			throw new Exception("Problema valore in input");
+		}
+		entityManager.persist(ordineInstance);
 		
 	}
 
 	@Override
-	public void delete(Ordine o) throws Exception {
-		// TODO Auto-generated method stub
+	public void delete(Ordine ordineInstance) throws Exception {
+		if (ordineInstance == null) {
+			throw new Exception("Problema valore in input");
+		}
+		entityManager.remove(entityManager.merge(ordineInstance));
 		
 	}
 
 	@Override
 	public Ordine findByIdFetchingArticoli(Long id) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		TypedQuery<Ordine> query = entityManager
+				.createQuery("from Ordine o left join fetch o.articoli where o.id = ?1", Ordine.class);
+		query.setParameter(1, id);
+		return query.getResultStream().findFirst().orElse(null);
+	}
+
+	@Override
+	public List<Ordine> findAllOrdiniMadeForCategoria(Categoria categoriaInstance) throws Exception {
+		TypedQuery<Ordine> query = entityManager
+				.createQuery("select o from Ordine o inner join o.articoli a inner join a.categorie c where c.id = ?1", Ordine.class);
+		query.setParameter(1, categoriaInstance.getId());
+		return query.getResultList();
 	}
 
 }
