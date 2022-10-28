@@ -68,7 +68,7 @@ public class OrdineDAOImpl implements OrdineDAO{
 	@Override
 	public List<Ordine> findAllOrdiniMadeForCategoria(Categoria categoriaInstance) throws Exception {
 		TypedQuery<Ordine> query = entityManager
-				.createQuery("select o from Ordine o inner join o.articoli a inner join a.categorie c where c.id = ?1", Ordine.class);
+				.createQuery("select o from Ordine o inner join fetch o.articoli a inner join fetch a.categorie c where c.id = ?1", Ordine.class);
 		query.setParameter(1, categoriaInstance.getId());
 		return query.getResultList();
 	}

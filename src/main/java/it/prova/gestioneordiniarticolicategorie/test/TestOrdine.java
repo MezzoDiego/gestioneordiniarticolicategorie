@@ -31,7 +31,7 @@ public class TestOrdine {
 			System.out.println("##################################################################################");
 			// testAggiornamentoOrdineEsistente(ordineServiceInstance);
 			System.out.println("##################################################################################");
-			//testInserimentoNuovoArticolo(articoloServiceInstance, ordineServiceInstance);
+			// testInserimentoNuovoArticolo(articoloServiceInstance, ordineServiceInstance);
 			System.out.println("##################################################################################");
 			// testAggiornamentoArticolo(articoloServiceInstance, ordineServiceInstance);
 			System.out.println("##################################################################################");
@@ -48,9 +48,11 @@ public class TestOrdine {
 			// testRimozioneOrdineCustomExceptionSeArticoliPresenti(ordineServiceInstance,
 			// articoloServiceInstance);
 			System.out.println("##################################################################################");
-			// testTrovaOrdiniEffettuatiPerCategoria(ordineServiceInstance, articoloServiceInstance, categoriaServiceInstance);
+			// testTrovaOrdiniEffettuatiPerCategoria(ordineServiceInstance,
+			// articoloServiceInstance, categoriaServiceInstance);
 			System.out.println("##################################################################################");
-			
+			testTrovaCategorieDistinctArticoliDiOrdine(ordineServiceInstance, articoloServiceInstance,
+					categoriaServiceInstance);
 			System.out.println("##################################################################################");
 			System.out.println("##################################################################################");
 
@@ -440,5 +442,93 @@ public class TestOrdine {
 		System.out.println(".......testTrovaOrdiniEffettuatiPerCategoria fine: PASSED.............");
 
 	}
-	
+
+	private static void testTrovaCategorieDistinctArticoliDiOrdine(OrdineService ordineServiceInstance,
+			ArticoloService articoloServiceInstance, CategoriaService categoriaServiceInstance) throws Exception {
+
+		System.out.println(".......testTrovaCategorieDistinctArticoliDiOrdine inizio.............");
+
+		// creo ordine e lo inserisco
+		Date dataSpedizione = new SimpleDateFormat("dd-MM-yyyy").parse("03-01-2022");
+		Date dataScadenza = new SimpleDateFormat("dd-MM-yyyy").parse("13-01-2022");
+		Ordine ordineInstance = new Ordine("Diego Mezzo", "Via Fedro 41", dataSpedizione, dataScadenza);
+		ordineServiceInstance.inserisciNuovo(ordineInstance);
+
+		// verifica corretto inserimento
+		if (ordineInstance.getId() == null)
+			throw new RuntimeException("testTrovaCategorieDistinctArticoliDiOrdine fallito, ordine non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance = new Articolo("Portatile asus", "65132a6845ddax", 750, new Date(), ordineInstance);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance);
+
+		// verifica corretto inserimento
+		if (articoloInstance.getId() == null)
+			throw new RuntimeException("testTrovaCategorieDistinctArticoliDiOrdine fallito, articolo non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance1 = new Articolo("Tosaerba", "654531sda3s4d5", 1500, new Date(), ordineInstance);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance1);
+
+		// verifica corretto inserimento
+		if (articoloInstance1.getId() == null)
+			throw new RuntimeException("testTrovaCategorieDistinctArticoliDiOrdine fallito, articolo non inserito ");
+
+		// creo categoria e la inserisco
+		Categoria categoriaInstance = new Categoria("Elettronica", "24e");
+		categoriaServiceInstance.inserisciNuovo(categoriaInstance);
+
+		// verifica corretto inserimento
+		if (categoriaInstance.getId() == null)
+			throw new RuntimeException("testTrovaCategorieDistinctArticoliDiOrdine fallito, categoria non inserita ");
+
+		// creo categoria e la inserisco
+		Categoria categoriaInstance1 = new Categoria("Giardinaggio", "15g");
+		categoriaServiceInstance.inserisciNuovo(categoriaInstance1);
+
+		// verifica corretto inserimento
+		if (categoriaInstance1.getId() == null)
+			throw new RuntimeException("testTrovaCategorieDistinctArticoliDiOrdine fallito, categoria non inserita ");
+
+		// aggiungo categoria ad articolo
+		articoloServiceInstance.aggiungiCategoria(articoloInstance, categoriaInstance);
+
+		// verifico avvenuta associazione
+		Articolo articoloReloaded = articoloServiceInstance
+				.caricaSingoloElementoEagerCategorie(articoloInstance.getId());
+		if (articoloReloaded.getCategorie().isEmpty())
+			throw new RuntimeException("testTrovaCategorieDistinctArticoliDiOrdine FAILED: categoria non aggiunta.");
+
+		// aggiungo categoria ad articolo
+		articoloServiceInstance.aggiungiCategoria(articoloInstance1, categoriaInstance1);
+
+		// verifico avvenuta associazione
+		Articolo articoloReloaded1 = articoloServiceInstance
+				.caricaSingoloElementoEagerCategorie(articoloInstance1.getId());
+		if (articoloReloaded1.getCategorie().isEmpty())
+			throw new RuntimeException("testTrovaCategorieDistinctArticoliDiOrdine FAILED: categoria non aggiunta.");
+
+		// esecuzione query di ricerca
+		List<Categoria> categorieFacentiParteDellOrdine = categoriaServiceInstance
+				.trovaCategorieDistinctArticoliDiOrdine(ordineInstance);
+
+		// verifica correttezza query di ricerca
+		if (categorieFacentiParteDellOrdine.size() != 2)
+			throw new RuntimeException(
+					"testTrovaCategorieDistinctArticoliDiOrdine FAILED: errore nella query di ricerca. ");
+
+		// reset tabelle
+		articoloServiceInstance.rimuoviTuttiGliArticoliDallaTabellaDiJoin();
+		categoriaServiceInstance.rimuovi(categoriaInstance.getId());
+		articoloServiceInstance.rimuovi(articoloInstance.getId());
+		ordineServiceInstance.rimuovi(ordineInstance.getId());
+
+		System.out.println(".......testTrovaCategorieDistinctArticoliDiOrdine fine: PASSED.............");
+
+	}
+
 }
