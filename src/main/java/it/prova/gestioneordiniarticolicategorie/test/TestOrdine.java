@@ -55,10 +55,12 @@ public class TestOrdine {
 			// articoloServiceInstance,
 			// categoriaServiceInstance);
 			System.out.println("##################################################################################");
-			testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria(ordineServiceInstance, articoloServiceInstance,
-					categoriaServiceInstance);
+			//testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria(ordineServiceInstance, articoloServiceInstance,
+			//		categoriaServiceInstance);
 			System.out.println("##################################################################################");
+			testTrovaOrdinePiurecenteConCategoria(ordineServiceInstance, articoloServiceInstance, categoriaServiceInstance);
 
+			
 		} catch (Throwable e) {
 			e.printStackTrace();
 		} finally {
@@ -652,6 +654,97 @@ public class TestOrdine {
 		ordineServiceInstance.rimuovi(ordineInstance.getId());
 
 		System.out.println(".......testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria fine: PASSED.............");
+
+	}
+
+	private static void testTrovaOrdinePiurecenteConCategoria(OrdineService ordineServiceInstance,
+			ArticoloService articoloServiceInstance, CategoriaService categoriaServiceInstance) throws Exception {
+
+		System.out.println(".......testTrovaOrdinePiurecenteConCategoria inizio.............");
+
+		// creo ordine e lo inserisco
+		Date dataSpedizione = new SimpleDateFormat("dd-MM-yyyy").parse("03-01-2022");
+		Date dataScadenza = new SimpleDateFormat("dd-MM-yyyy").parse("13-01-2022");
+		Ordine ordineInstance = new Ordine("Diego Mezzo", "Via Fedro 41", dataSpedizione, dataScadenza);
+		ordineServiceInstance.inserisciNuovo(ordineInstance);
+
+		// verifica corretto inserimento
+		if (ordineInstance.getId() == null)
+			throw new RuntimeException("testTrovaOrdinePiurecenteConCategoria fallito, ordine non inserito ");
+
+		// creo ordine e lo inserisco
+		Date dataSpedizione1 = new SimpleDateFormat("dd-MM-yyyy").parse("03-02-2022");
+		Date dataScadenza1 = new SimpleDateFormat("dd-MM-yyyy").parse("13-02-2022");
+		Ordine ordineInstance1 = new Ordine("Diego Mezzo", "Via Fedro 41", dataSpedizione1, dataScadenza1);
+		ordineServiceInstance.inserisciNuovo(ordineInstance1);
+
+		// verifica corretto inserimento
+		if (ordineInstance1.getId() == null)
+			throw new RuntimeException("testTrovaOrdinePiurecenteConCategoria fallito, ordine non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance = new Articolo("Portatile asus", "65132a6845ddax", 750, new Date(), ordineInstance);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance);
+
+		// verifica corretto inserimento
+		if (articoloInstance.getId() == null)
+			throw new RuntimeException("testTrovaOrdinePiurecenteConCategoria fallito, articolo non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance1 = new Articolo("Smartphone Samsung", "65132a6945ddaz", 950, new Date(),
+				ordineInstance1);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance1);
+
+		// verifica corretto inserimento
+		if (articoloInstance1.getId() == null)
+			throw new RuntimeException("testTrovaOrdinePiurecenteConCategoria fallito, articolo non inserito ");
+
+		// creo categoria e la inserisco
+		Categoria categoriaInstance = new Categoria("Elettronica", "24e");
+		categoriaServiceInstance.inserisciNuovo(categoriaInstance);
+
+		// verifica corretto inserimento
+		if (categoriaInstance.getId() == null)
+			throw new RuntimeException("testTrovaOrdinePiurecenteConCategoria fallito, categoria non inserita ");
+
+		// aggiungo categoria ad articolo
+		articoloServiceInstance.aggiungiCategoria(articoloInstance, categoriaInstance);
+
+		// verifico avvenuta associazione
+		Articolo articoloReloaded = articoloServiceInstance
+				.caricaSingoloElementoEagerCategorie(articoloInstance.getId());
+		if (articoloReloaded.getCategorie().isEmpty())
+			throw new RuntimeException("testTrovaOrdinePiurecenteConCategoria FAILED: categoria non aggiunta.");
+
+		// aggiungo categoria ad articolo
+		articoloServiceInstance.aggiungiCategoria(articoloInstance1, categoriaInstance);
+
+		// verifico avvenuta associazione
+		Articolo articoloReloaded1 = articoloServiceInstance
+				.caricaSingoloElementoEagerCategorie(articoloInstance1.getId());
+		if (articoloReloaded1.getCategorie().isEmpty())
+			throw new RuntimeException("testTrovaOrdinePiurecenteConCategoria FAILED: categoria non aggiunta.");
+		
+		//esecuzione query
+		Ordine ordinePiuRecenteAventeDeterminataCategoria = ordineServiceInstance.trovaOrdinePiurecenteConCategoria(categoriaInstance);
+		
+		//verifica correttezza query di ricerca
+		if(ordinePiuRecenteAventeDeterminataCategoria.equals(null))
+			throw new RuntimeException("testTrovaOrdinePiurecenteConCategoria FAILED: si e'verificato un errore.");
+		
+		//reset tabelle
+		articoloServiceInstance.rimuoviTuttiGliArticoliDallaTabellaDiJoin();
+		categoriaServiceInstance.rimuovi(categoriaInstance.getId());
+		articoloServiceInstance.rimuovi(articoloInstance.getId());
+		articoloServiceInstance.rimuovi(articoloInstance1.getId());
+		ordineServiceInstance.rimuovi(ordineInstance.getId());
+		ordineServiceInstance.rimuovi(ordineInstance1.getId());
+
+		System.out.println(".......testTrovaOrdinePiurecenteConCategoria fine: PASSED.............");
 
 	}
 

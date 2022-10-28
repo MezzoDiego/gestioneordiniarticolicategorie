@@ -25,4 +25,6 @@ public interface OrdineService {
 	public void setOrdineDAO(OrdineDAO ordineDAO);
 	
 	public List<Ordine> trovaOrdiniEffettuatiPerCategoria(Categoria categoriaInstance) throws Exception;
+	
+	public Ordine trovaOrdinePiurecenteConCategoria(Categoria categoriaInstance) throws Exception;
 }
