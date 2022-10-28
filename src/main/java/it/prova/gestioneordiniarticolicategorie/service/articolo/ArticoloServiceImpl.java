@@ -141,7 +141,7 @@ public class ArticoloServiceImpl implements ArticoloService {
 
 			// uso l'injection per il dao
 			articoloDAO.setEntityManager(entityManager);
-			
+
 			// eseguo quello che realmente devo fare
 			articoloDAO.delete(articoloDAO.get(idArticolo));
 
@@ -243,6 +243,26 @@ public class ArticoloServiceImpl implements ArticoloService {
 			EntityManagerUtil.closeEntityManager(entityManager);
 		}
 
+	}
+
+	@Override
+	public int voglioLaSommaDeiPrezziDegliArticoliDellaCategoria(Categoria categoriaInstance) throws Exception {
+		// questo è come una connection
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			// uso l'injection per il dao
+			articoloDAO.setEntityManager(entityManager);
+
+			// eseguo quello che realmente devo fare
+			return articoloDAO.giveMetheSumOfPricesOfCategoriasArticoli(categoriaInstance);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
 	}
 
 }

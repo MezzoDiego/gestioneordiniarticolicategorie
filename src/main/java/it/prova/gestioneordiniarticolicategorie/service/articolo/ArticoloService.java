@@ -28,4 +28,6 @@ public interface ArticoloService {
 	
 	// per injection
 		public void setArticoloDAO(ArticoloDAO articoloDAO);
+		
+	public int voglioLaSommaDeiPrezziDegliArticoliDellaCategoria(Categoria categoriaInstance) throws Exception;
 }

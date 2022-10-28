@@ -51,9 +51,12 @@ public class TestOrdine {
 			// testTrovaOrdiniEffettuatiPerCategoria(ordineServiceInstance,
 			// articoloServiceInstance, categoriaServiceInstance);
 			System.out.println("##################################################################################");
-			testTrovaCategorieDistinctArticoliDiOrdine(ordineServiceInstance, articoloServiceInstance,
-					categoriaServiceInstance);
+			// testTrovaCategorieDistinctArticoliDiOrdine(ordineServiceInstance,
+			// articoloServiceInstance,
+			// categoriaServiceInstance);
 			System.out.println("##################################################################################");
+			testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria(ordineServiceInstance, articoloServiceInstance,
+					categoriaServiceInstance);
 			System.out.println("##################################################################################");
 
 		} catch (Throwable e) {
@@ -528,6 +531,127 @@ public class TestOrdine {
 		ordineServiceInstance.rimuovi(ordineInstance.getId());
 
 		System.out.println(".......testTrovaCategorieDistinctArticoliDiOrdine fine: PASSED.............");
+
+	}
+
+	private static void testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria(OrdineService ordineServiceInstance,
+			ArticoloService articoloServiceInstance, CategoriaService categoriaServiceInstance) throws Exception {
+
+		System.out.println(".......testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria inizio.............");
+
+		// creo ordine e lo inserisco
+		Date dataSpedizione = new SimpleDateFormat("dd-MM-yyyy").parse("03-01-2022");
+		Date dataScadenza = new SimpleDateFormat("dd-MM-yyyy").parse("13-01-2022");
+		Ordine ordineInstance = new Ordine("Diego Mezzo", "Via Fedro 41", dataSpedizione, dataScadenza);
+		ordineServiceInstance.inserisciNuovo(ordineInstance);
+
+		// verifica corretto inserimento
+		if (ordineInstance.getId() == null)
+			throw new RuntimeException(
+					"testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria fallito, ordine non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance = new Articolo("Portatile asus", "65132a6845ddax", 750, new Date(), ordineInstance);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance);
+
+		// verifica corretto inserimento
+		if (articoloInstance.getId() == null)
+			throw new RuntimeException(
+					"testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria fallito, articolo non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance1 = new Articolo("Smartphone Samsung", "65132a6945ddaz", 950, new Date(),
+				ordineInstance);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance1);
+
+		// verifica corretto inserimento
+		if (articoloInstance1.getId() == null)
+			throw new RuntimeException(
+					"testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria fallito, articolo non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance2 = new Articolo("Tosaerba", "654s63ad6as45", 2550, new Date(), ordineInstance);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance2);
+
+		// verifica corretto inserimento
+		if (articoloInstance2.getId() == null)
+			throw new RuntimeException(
+					"testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria fallito, articolo non inserito ");
+
+		// creo categoria e la inserisco
+		Categoria categoriaInstance = new Categoria("Elettronica", "24e");
+		categoriaServiceInstance.inserisciNuovo(categoriaInstance);
+
+		// verifica corretto inserimento
+		if (categoriaInstance.getId() == null)
+			throw new RuntimeException(
+					"testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria fallito, categoria non inserita ");
+
+		// creo categoria e la inserisco
+		Categoria categoriaInstance1 = new Categoria("Giardinaggio", "15g");
+		categoriaServiceInstance.inserisciNuovo(categoriaInstance1);
+
+		// verifica corretto inserimento
+		if (categoriaInstance1.getId() == null)
+			throw new RuntimeException(
+					"testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria fallito, categoria non inserita ");
+
+		// aggiungo categoria ad articolo
+		articoloServiceInstance.aggiungiCategoria(articoloInstance, categoriaInstance);
+
+		// verifico avvenuta associazione
+		Articolo articoloReloaded = articoloServiceInstance
+				.caricaSingoloElementoEagerCategorie(articoloInstance.getId());
+		if (articoloReloaded.getCategorie().isEmpty())
+			throw new RuntimeException(
+					"testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria FAILED: categoria non aggiunta.");
+
+		// aggiungo categoria ad articolo
+		articoloServiceInstance.aggiungiCategoria(articoloInstance1, categoriaInstance);
+
+		// verifico avvenuta associazione
+		Articolo articoloReloaded1 = articoloServiceInstance
+				.caricaSingoloElementoEagerCategorie(articoloInstance1.getId());
+		if (articoloReloaded1.getCategorie().isEmpty())
+			throw new RuntimeException(
+					"testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria FAILED: categoria non aggiunta.");
+
+		// aggiungo categoria ad articolo
+		articoloServiceInstance.aggiungiCategoria(articoloInstance2, categoriaInstance1);
+
+		// verifico avvenuta associazione
+		Articolo articoloReloaded2 = articoloServiceInstance
+				.caricaSingoloElementoEagerCategorie(articoloInstance2.getId());
+		if (articoloReloaded2.getCategorie().isEmpty())
+			throw new RuntimeException(
+					"testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria FAILED: categoria non aggiunta.");
+
+		// esecuzione query
+		int sommaPrezziDiArticoliDiUnaDeterminataCategoria = articoloServiceInstance
+				.voglioLaSommaDeiPrezziDegliArticoliDellaCategoria(categoriaInstance);
+
+		// verifica funzionamento query
+		if (sommaPrezziDiArticoliDiUnaDeterminataCategoria != (articoloInstance.getPrezzoSingolo()
+				+ articoloInstance1.getPrezzoSingolo()))
+			throw new RuntimeException(
+					"testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria FAILED: si e'verificato un errore durante l'esecuzione della query.");
+
+		// reset tabelle
+		articoloServiceInstance.rimuoviTuttiGliArticoliDallaTabellaDiJoin();
+		categoriaServiceInstance.rimuovi(categoriaInstance.getId());
+		categoriaServiceInstance.rimuovi(categoriaInstance1.getId());
+		articoloServiceInstance.rimuovi(articoloInstance.getId());
+		articoloServiceInstance.rimuovi(articoloInstance1.getId());
+		articoloServiceInstance.rimuovi(articoloInstance2.getId());
+		ordineServiceInstance.rimuovi(ordineInstance.getId());
+
+		System.out.println(".......testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria fine: PASSED.............");
 
 	}
 
