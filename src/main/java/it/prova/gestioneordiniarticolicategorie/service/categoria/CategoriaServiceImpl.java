@@ -1,5 +1,6 @@
 package it.prova.gestioneordiniarticolicategorie.service.categoria;
 
+import java.util.Date;
 import java.util.List;
 
 import javax.persistence.EntityManager;
@@ -231,6 +232,26 @@ public class CategoriaServiceImpl implements CategoriaService {
 
 			// eseguo quello che realmente devo fare
 			return categoriaDAO.findAllArticolisCategorieOfAnOrdine(ordineInstance);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public List<String> trovaCodiciDiCategorieDiOrdiniEffettuatiInMese(Date input) throws Exception {
+		// questo è come una connection
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			// uso l'injection per il dao
+			categoriaDAO.setEntityManager(entityManager);
+
+			// eseguo quello che realmente devo fare
+			return categoriaDAO.findCategoriesCodiciOfOrdiniMadeInMonth(input);
 
 		} catch (Exception e) {
 			e.printStackTrace();

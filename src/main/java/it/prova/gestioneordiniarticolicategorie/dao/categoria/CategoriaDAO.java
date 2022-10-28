@@ -1,5 +1,6 @@
 package it.prova.gestioneordiniarticolicategorie.dao.categoria;
 
+import java.util.Date;
 import java.util.List;
 
 import it.prova.gestioneordiniarticolicategorie.dao.IBaseDAO;
@@ -13,6 +14,8 @@ public interface CategoriaDAO extends IBaseDAO<Categoria>{
 	public void deleteCategoriaFromJoinTable(Long idCategoria) throws Exception;
 	
 	public List<Categoria> findAllArticolisCategorieOfAnOrdine(Ordine ordineInstance) throws Exception;	
+	
+	public List<String> findCategoriesCodiciOfOrdiniMadeInMonth(Date input) throws Exception;
 
 
 }

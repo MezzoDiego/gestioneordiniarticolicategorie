@@ -55,12 +55,22 @@ public class TestOrdine {
 			// articoloServiceInstance,
 			// categoriaServiceInstance);
 			System.out.println("##################################################################################");
-			//testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria(ordineServiceInstance, articoloServiceInstance,
-			//		categoriaServiceInstance);
+			// testVoglioLaSommaDeiPrezziDegliArticoliDellaCategoria(ordineServiceInstance,
+			// articoloServiceInstance,
+			// categoriaServiceInstance);
 			System.out.println("##################################################################################");
-			testTrovaOrdinePiurecenteConCategoria(ordineServiceInstance, articoloServiceInstance, categoriaServiceInstance);
-
+			// testTrovaOrdinePiurecenteConCategoria(ordineServiceInstance,
+			// articoloServiceInstance,
+			// categoriaServiceInstance);
+			System.out.println("##################################################################################");
+			testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese(ordineServiceInstance, articoloServiceInstance,
+					categoriaServiceInstance);
+			System.out.println("##################################################################################");
 			
+			System.out.println("##################################################################################");
+			System.out.println("##################################################################################");
+			System.out.println("##################################################################################");
+
 		} catch (Throwable e) {
 			e.printStackTrace();
 		} finally {
@@ -728,15 +738,16 @@ public class TestOrdine {
 				.caricaSingoloElementoEagerCategorie(articoloInstance1.getId());
 		if (articoloReloaded1.getCategorie().isEmpty())
 			throw new RuntimeException("testTrovaOrdinePiurecenteConCategoria FAILED: categoria non aggiunta.");
-		
-		//esecuzione query
-		Ordine ordinePiuRecenteAventeDeterminataCategoria = ordineServiceInstance.trovaOrdinePiurecenteConCategoria(categoriaInstance);
-		
-		//verifica correttezza query di ricerca
-		if(ordinePiuRecenteAventeDeterminataCategoria.equals(null))
+
+		// esecuzione query
+		Ordine ordinePiuRecenteAventeDeterminataCategoria = ordineServiceInstance
+				.trovaOrdinePiurecenteConCategoria(categoriaInstance);
+
+		// verifica correttezza query di ricerca
+		if (ordinePiuRecenteAventeDeterminataCategoria.equals(null))
 			throw new RuntimeException("testTrovaOrdinePiurecenteConCategoria FAILED: si e'verificato un errore.");
-		
-		//reset tabelle
+
+		// reset tabelle
 		articoloServiceInstance.rimuoviTuttiGliArticoliDallaTabellaDiJoin();
 		categoriaServiceInstance.rimuovi(categoriaInstance.getId());
 		articoloServiceInstance.rimuovi(articoloInstance.getId());
@@ -745,6 +756,130 @@ public class TestOrdine {
 		ordineServiceInstance.rimuovi(ordineInstance1.getId());
 
 		System.out.println(".......testTrovaOrdinePiurecenteConCategoria fine: PASSED.............");
+
+	}
+
+	private static void testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese(OrdineService ordineServiceInstance,
+			ArticoloService articoloServiceInstance, CategoriaService categoriaServiceInstance) throws Exception {
+
+		System.out.println(".......testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese inizio.............");
+
+		// creo ordine e lo inserisco
+		Date dataSpedizione = new SimpleDateFormat("dd-MM-yyyy").parse("03-01-2022");
+		Date dataScadenza = new SimpleDateFormat("dd-MM-yyyy").parse("13-01-2022");
+		Ordine ordineInstance = new Ordine("Diego Mezzo", "Via Fedro 41", dataSpedizione, dataScadenza);
+		ordineServiceInstance.inserisciNuovo(ordineInstance);
+
+		// verifica corretto inserimento
+		if (ordineInstance.getId() == null)
+			throw new RuntimeException(
+					"testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese fallito, ordine non inserito ");
+
+		// creo ordine e lo inserisco
+		Date dataSpedizione1 = new SimpleDateFormat("dd-MM-yyyy").parse("03-02-2022");
+		Date dataScadenza1 = new SimpleDateFormat("dd-MM-yyyy").parse("13-02-2022");
+		Ordine ordineInstance1 = new Ordine("Diego Mezzo", "Via Fedro 41", dataSpedizione1, dataScadenza1);
+		ordineServiceInstance.inserisciNuovo(ordineInstance1);
+
+		// verifica corretto inserimento
+		if (ordineInstance1.getId() == null)
+			throw new RuntimeException(
+					"testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese fallito, ordine non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance = new Articolo("Portatile asus", "65132a6845ddax", 750, new Date(), ordineInstance);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance);
+
+		// verifica corretto inserimento
+		if (articoloInstance.getId() == null)
+			throw new RuntimeException(
+					"testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese fallito, articolo non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance1 = new Articolo("Smartphone Samsung", "65132a6945ddaz", 950, new Date(),
+				ordineInstance1);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance1);
+
+		// verifica corretto inserimento
+		if (articoloInstance1.getId() == null)
+			throw new RuntimeException(
+					"testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese fallito, articolo non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance2 = new Articolo("Smartphone Samsung", "65132a7045ddaz", 850, new Date(),
+				ordineInstance);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance2);
+
+		// verifica corretto inserimento
+		if (articoloInstance2.getId() == null)
+			throw new RuntimeException(
+					"testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese fallito, articolo non inserito ");
+
+		// creo categoria e la inserisco
+		Categoria categoriaInstance = new Categoria("Elettronica", "24e");
+		categoriaServiceInstance.inserisciNuovo(categoriaInstance);
+
+		// verifica corretto inserimento
+		if (categoriaInstance.getId() == null)
+			throw new RuntimeException(
+					"testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese fallito, categoria non inserita ");
+
+		// aggiungo categoria ad articolo
+		articoloServiceInstance.aggiungiCategoria(articoloInstance, categoriaInstance);
+
+		// verifico avvenuta associazione
+		Articolo articoloReloaded = articoloServiceInstance
+				.caricaSingoloElementoEagerCategorie(articoloInstance.getId());
+		if (articoloReloaded.getCategorie().isEmpty())
+			throw new RuntimeException(
+					"testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese FAILED: categoria non aggiunta.");
+
+		// aggiungo categoria ad articolo
+		articoloServiceInstance.aggiungiCategoria(articoloInstance1, categoriaInstance);
+
+		// verifico avvenuta associazione
+		Articolo articoloReloaded1 = articoloServiceInstance
+				.caricaSingoloElementoEagerCategorie(articoloInstance1.getId());
+		if (articoloReloaded1.getCategorie().isEmpty())
+			throw new RuntimeException(
+					"testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese FAILED: categoria non aggiunta.");
+
+		// aggiungo categoria ad articolo
+		articoloServiceInstance.aggiungiCategoria(articoloInstance2, categoriaInstance);
+
+		// verifico avvenuta associazione
+		Articolo articoloReloaded2 = articoloServiceInstance
+				.caricaSingoloElementoEagerCategorie(articoloInstance2.getId());
+		if (articoloReloaded2.getCategorie().isEmpty())
+			throw new RuntimeException(
+					"testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese FAILED: categoria non aggiunta.");
+
+		// esecuzione query di ricerca
+		Date dataPerConfronto = new SimpleDateFormat("MM-yyyy").parse("02-2022");
+		List<String> descrizioniCodiciCategorieDiOrdiniEffettuatiInMese = categoriaServiceInstance
+				.trovaCodiciDiCategorieDiOrdiniEffettuatiInMese(dataPerConfronto);
+
+		// verifica corretto funzionamento query di ricerca
+		if (descrizioniCodiciCategorieDiOrdiniEffettuatiInMese.size() != 1)
+			throw new RuntimeException(
+					"testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese FAILED: non sono stati trovati codici di categorie di ordini effettuati in quel lasso di tempo.");
+
+		// reset tabelle
+		articoloServiceInstance.rimuoviTuttiGliArticoliDallaTabellaDiJoin();
+		categoriaServiceInstance.rimuovi(categoriaInstance.getId());
+		articoloServiceInstance.rimuovi(articoloInstance.getId());
+		articoloServiceInstance.rimuovi(articoloInstance1.getId());
+		articoloServiceInstance.rimuovi(articoloInstance2.getId());
+		ordineServiceInstance.rimuovi(ordineInstance.getId());
+		ordineServiceInstance.rimuovi(ordineInstance1.getId());
+
+		System.out.println(".......testTrovaCodiciDiCategorieDiOrdiniEffettuatiInMese fine: PASSED.............");
 
 	}
 
