@@ -33,4 +33,6 @@ public interface ArticoloService {
 	public int voglioLaSommaDeiPrezziDegliArticoliDellaCategoria(Categoria categoriaInstance) throws Exception;
 	
 	public int voglioLaSommaDeiPrezziDegliArticoliIndirizzatiA(String destinatario) throws Exception;
+	
+	public List<Articolo> voglioArticoliDiOrdineConErroriDate() throws Exception;
 }

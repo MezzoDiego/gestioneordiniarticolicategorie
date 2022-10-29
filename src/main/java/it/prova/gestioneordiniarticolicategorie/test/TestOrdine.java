@@ -71,9 +71,10 @@ public class TestOrdine {
 			// articoloServiceInstance,
 			// categoriaServiceInstance);
 			System.out.println("##################################################################################");
-			testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli(ordineServiceInstance,
-					articoloServiceInstance);
+			// testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli(ordineServiceInstance,
+			// 		articoloServiceInstance);
 			System.out.println("##################################################################################");
+			testVoglioArticoliDiOrdineConErroriDate(ordineServiceInstance, articoloServiceInstance);
 			System.out.println("##################################################################################");
 
 		} catch (Throwable e) {
@@ -1037,8 +1038,9 @@ public class TestOrdine {
 	private static void testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli(
 			OrdineService ordineServiceInstance, ArticoloService articoloServiceInstance) throws Exception {
 
-		System.out.println(".......testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli inizio.............");
-		
+		System.out.println(
+				".......testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli inizio.............");
+
 		// creo ordine e lo inserisco
 		Date dataSpedizione = new SimpleDateFormat("dd-MM-yyyy").parse("03-01-2022");
 		Date dataScadenza = new SimpleDateFormat("dd-MM-yyyy").parse("13-01-2022");
@@ -1098,8 +1100,64 @@ public class TestOrdine {
 		articoloServiceInstance.rimuovi(articoloInstance1.getId());
 		ordineServiceInstance.rimuovi(ordineInstance.getId());
 		ordineServiceInstance.rimuovi(ordineInstance1.getId());
+
+		System.out.println(
+				".......testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli fine: PASSED.............");
+
+	}
+
+	private static void testVoglioArticoliDiOrdineConErroriDate(OrdineService ordineServiceInstance,
+			ArticoloService articoloServiceInstance) throws Exception {
 		
-		System.out.println(".......testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli fine: PASSED.............");
+		System.out.println(".......testVoglioArticoliDiOrdineConErroriDate inizio.............");
+
+		// creo ordine e lo inserisco
+		Date dataSpedizione = new SimpleDateFormat("dd-MM-yyyy").parse("15-01-2022");
+		Date dataScadenza = new SimpleDateFormat("dd-MM-yyyy").parse("13-01-2022");
+		Ordine ordineInstance = new Ordine("Diego Mezzo", "Via Fedro 41", dataSpedizione, dataScadenza);
+		ordineServiceInstance.inserisciNuovo(ordineInstance);
+
+		// verifica corretto inserimento
+		if (ordineInstance.getId() == null)
+			throw new RuntimeException(
+					"testVoglioArticoliDiOrdineConErroriDate fallito, ordine non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance = new Articolo("Portatile asus", "65132a6845ddax", 750, new Date(), ordineInstance);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance);
+
+		// verifica corretto inserimento
+		if (articoloInstance.getId() == null)
+			throw new RuntimeException(
+					"testVoglioArticoliDiOrdineConErroriDate fallito, articolo non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance1 = new Articolo("Smartphone Samsung", "65132a6945ddaz", 950, new Date(),
+				ordineInstance);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance1);
+
+		// verifica corretto inserimento
+		if (articoloInstance1.getId() == null)
+			throw new RuntimeException(
+					"testVoglioArticoliDiOrdineConErroriDate fallito, articolo non inserito ");
+		
+		//esecuzione query di ricerca
+		List<Articolo> articoliAventiOrdineConErroreNelleDate = articoloServiceInstance.voglioArticoliDiOrdineConErroriDate();
+		
+		//verifica corretto funzionamento query di ricerca
+		if(articoliAventiOrdineConErroreNelleDate.size() != 2)
+			throw new RuntimeException("testVoglioArticoliDiOrdineConErroriDate FAILED: non sono stati trovati articoli aventi ordine con date errate.");
+		
+		//reset tabelle
+		articoloServiceInstance.rimuovi(articoloInstance.getId());
+		articoloServiceInstance.rimuovi(articoloInstance1.getId());
+		ordineServiceInstance.rimuovi(ordineInstance.getId());
+		
+		System.out.println(".......testVoglioArticoliDiOrdineConErroriDate fine: PASSED.............");
 
 	}
 

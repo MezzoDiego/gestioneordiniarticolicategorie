@@ -96,4 +96,9 @@ public class ArticoloDAOImpl implements ArticoloDAO {
 		return query.getSingleResult().intValue();
 	}
 
+	@Override
+	public List<Articolo> findAllArticoliOfOrderWithWrongDates() throws Exception {
+		return entityManager.createQuery("select a from Articolo a inner join a.ordine o where o.dataSpedizione > o.dataScadenza", Articolo.class).getResultList();
+	}
+
 }

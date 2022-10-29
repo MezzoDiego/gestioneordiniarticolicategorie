@@ -1,5 +1,7 @@
 package it.prova.gestioneordiniarticolicategorie.dao.articolo;
 
+import java.util.List;
+
 import it.prova.gestioneordiniarticolicategorie.dao.IBaseDAO;
 import it.prova.gestioneordiniarticolicategorie.model.Articolo;
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
@@ -16,6 +18,9 @@ public interface ArticoloDAO extends IBaseDAO<Articolo>{
 	public int giveMetheSumOfPricesOfCategoriasArticoli(Categoria categoriaInstance) throws Exception;
 	
 	public int giveMeTheSumOfPricesForTheArticoliAddressedTo(String destinatario) throws Exception;
+	
+	public List<Articolo> findAllArticoliOfOrderWithWrongDates() throws Exception;
+
 
 
 }
