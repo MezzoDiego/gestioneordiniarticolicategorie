@@ -7,17 +7,18 @@ import javax.persistence.TypedQuery;
 
 import it.prova.gestioneordiniarticolicategorie.model.Articolo;
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
+import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
-public class ArticoloDAOImpl implements ArticoloDAO{
+public class ArticoloDAOImpl implements ArticoloDAO {
 
 	private EntityManager entityManager;
-	
+
 	@Override
 	public void setEntityManager(EntityManager entityManager) {
 		this.entityManager = entityManager;
-		
+
 	}
-	
+
 	@Override
 	public List<Articolo> list() throws Exception {
 		return entityManager.createQuery("from Articolo", Articolo.class).getResultList();
@@ -35,7 +36,7 @@ public class ArticoloDAOImpl implements ArticoloDAO{
 		if (articoloInstance == null) {
 			throw new Exception("Problema valore in input");
 		}
-		articoloInstance = entityManager.merge(articoloInstance);		
+		articoloInstance = entityManager.merge(articoloInstance);
 	}
 
 	@Override
@@ -44,7 +45,7 @@ public class ArticoloDAOImpl implements ArticoloDAO{
 			throw new Exception("Problema valore in input");
 		}
 		entityManager.persist(articoloInstance);
-		
+
 	}
 
 	@Override
@@ -53,13 +54,13 @@ public class ArticoloDAOImpl implements ArticoloDAO{
 			throw new Exception("Problema valore in input");
 		}
 		entityManager.remove(entityManager.merge(articoloInstance));
-		
+
 	}
 
 	@Override
 	public Articolo findByIdFetchingCategorie(Long id) throws Exception {
-		TypedQuery<Articolo> query = entityManager
-				.createQuery("select a FROM Articolo a left join fetch a.categorie c where a.id = :idArticolo", Articolo.class);
+		TypedQuery<Articolo> query = entityManager.createQuery(
+				"select a FROM Articolo a left join fetch a.categorie c where a.id = :idArticolo", Articolo.class);
 		query.setParameter("idArticolo", id);
 		return query.getResultList().stream().findFirst().orElse(null);
 	}
@@ -67,21 +68,31 @@ public class ArticoloDAOImpl implements ArticoloDAO{
 	@Override
 	public void deleteAllFromJoinTable() throws Exception {
 		entityManager.createNativeQuery("delete from articolo_categoria").executeUpdate();
-		
+
 	}
 
 	@Override
 	public void deleteArticoloFromJoinTable(Long idArticolo) throws Exception {
-		entityManager.createNativeQuery("delete from articolo_categoria where articolo_id = ?1").setParameter(1, idArticolo).executeUpdate();
+		entityManager.createNativeQuery("delete from articolo_categoria where articolo_id = ?1")
+				.setParameter(1, idArticolo).executeUpdate();
 
-		
 	}
 
 	@Override
 	public int giveMetheSumOfPricesOfCategoriasArticoli(Categoria categoriaInstance) throws Exception {
-		TypedQuery<Long> query = entityManager
-				.createQuery("select sum(a.prezzoSingolo) FROM Articolo a left join a.categorie c where c.id = :idCategoria", Long.class);
+		TypedQuery<Long> query = entityManager.createQuery(
+				"select sum(a.prezzoSingolo) FROM Articolo a left join a.categorie c where c.id = :idCategoria",
+				Long.class);
 		query.setParameter("idCategoria", categoriaInstance.getId());
+		return query.getSingleResult().intValue();
+	}
+
+	@Override
+	public int giveMeTheSumOfPricesForTheArticoliAddressedTo(Ordine ordineInstance) throws Exception {
+		TypedQuery<Long> query = entityManager.createQuery(
+				"select sum(a.prezzoSingolo) FROM Articolo a inner join a.ordine o where o.nomeDestinatario = :nomeDestinatario",
+				Long.class);
+		query.setParameter("nomeDestinatario", ordineInstance.getNomeDestinatario());
 		return query.getSingleResult().intValue();
 	}
 

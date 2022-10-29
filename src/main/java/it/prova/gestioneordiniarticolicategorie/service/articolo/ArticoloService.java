@@ -5,6 +5,7 @@ import java.util.List;
 import it.prova.gestioneordiniarticolicategorie.dao.articolo.ArticoloDAO;
 import it.prova.gestioneordiniarticolicategorie.model.Articolo;
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
+import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 
 public interface ArticoloService {
@@ -30,4 +31,6 @@ public interface ArticoloService {
 		public void setArticoloDAO(ArticoloDAO articoloDAO);
 		
 	public int voglioLaSommaDeiPrezziDegliArticoliDellaCategoria(Categoria categoriaInstance) throws Exception;
+	
+	public int voglioLaSommaDeiPrezziDegliArticoliIndirizzatiA(Ordine ordineInstance) throws Exception;
 }

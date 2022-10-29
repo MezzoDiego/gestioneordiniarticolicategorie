@@ -8,6 +8,7 @@ import it.prova.gestioneordiniarticolicategorie.dao.EntityManagerUtil;
 import it.prova.gestioneordiniarticolicategorie.dao.articolo.ArticoloDAO;
 import it.prova.gestioneordiniarticolicategorie.model.Articolo;
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
+import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
 public class ArticoloServiceImpl implements ArticoloService {
 
@@ -256,6 +257,26 @@ public class ArticoloServiceImpl implements ArticoloService {
 
 			// eseguo quello che realmente devo fare
 			return articoloDAO.giveMetheSumOfPricesOfCategoriasArticoli(categoriaInstance);
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			throw e;
+		} finally {
+			EntityManagerUtil.closeEntityManager(entityManager);
+		}
+	}
+
+	@Override
+	public int voglioLaSommaDeiPrezziDegliArticoliIndirizzatiA(Ordine ordineInstance) throws Exception {
+		// questo è come una connection
+		EntityManager entityManager = EntityManagerUtil.getEntityManager();
+
+		try {
+			// uso l'injection per il dao
+			articoloDAO.setEntityManager(entityManager);
+
+			// eseguo quello che realmente devo fare
+			return articoloDAO.giveMeTheSumOfPricesForTheArticoliAddressedTo(ordineInstance);
 
 		} catch (Exception e) {
 			e.printStackTrace();
