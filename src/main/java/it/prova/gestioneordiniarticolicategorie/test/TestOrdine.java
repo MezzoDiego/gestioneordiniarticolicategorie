@@ -67,8 +67,12 @@ public class TestOrdine {
 			// articoloServiceInstance,
 			// categoriaServiceInstance);
 			System.out.println("##################################################################################");
-			testVoglioLaSommaDeiPrezziDegliArticoliIndirizzatiA(ordineServiceInstance, articoloServiceInstance, categoriaServiceInstance);
+			// testVoglioLaSommaDeiPrezziDegliArticoliIndirizzatiA(ordineServiceInstance,
+			// articoloServiceInstance,
+			// categoriaServiceInstance);
 			System.out.println("##################################################################################");
+			testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli(ordineServiceInstance,
+					articoloServiceInstance);
 			System.out.println("##################################################################################");
 			System.out.println("##################################################################################");
 
@@ -888,7 +892,7 @@ public class TestOrdine {
 			ArticoloService articoloServiceInstance, CategoriaService categoriaServiceInstance) throws Exception {
 
 		System.out.println(".......testVoglioLaSommaDeiPrezziDegliArticoliIndirizzatiA inizio.............");
-		
+
 		// creo ordine e lo inserisco
 		Date dataSpedizione = new SimpleDateFormat("dd-MM-yyyy").parse("03-01-2022");
 		Date dataScadenza = new SimpleDateFormat("dd-MM-yyyy").parse("13-01-2022");
@@ -1006,15 +1010,17 @@ public class TestOrdine {
 		if (articoloReloaded3.getCategorie().isEmpty())
 			throw new RuntimeException(
 					"testVoglioLaSommaDeiPrezziDegliArticoliIndirizzatiA FAILED: categoria non aggiunta.");
-		
-		//esecuzione query di ricerca
-		int sommaPrezziArticoliIndirizzatiA = articoloServiceInstance.voglioLaSommaDeiPrezziDegliArticoliIndirizzatiA(ordineInstance1);
-		
-		//verifica corretto funzionamento query di ricerca
-		if(sommaPrezziArticoliIndirizzatiA != (articoloInstance2.getPrezzoSingolo() + articoloInstance3.getPrezzoSingolo()))
-			throw new RuntimeException("testVoglioLaSommaDeiPrezziDegliArticoliIndirizzatiA FAILED: errore durante l'esecuzione della query di ricerca.");
-		
-		//reset tabelle
+
+		// esecuzione query di ricerca
+		int sommaPrezziArticoliIndirizzatiA = articoloServiceInstance
+				.voglioLaSommaDeiPrezziDegliArticoliIndirizzatiA("diego mezzo");
+
+		// verifica corretto funzionamento query di ricerca
+		if (sommaPrezziArticoliIndirizzatiA == 0)
+			throw new RuntimeException(
+					"testVoglioLaSommaDeiPrezziDegliArticoliIndirizzatiA FAILED: errore durante l'esecuzione della query di ricerca.");
+
+		// reset tabelle
 		articoloServiceInstance.rimuoviTuttiGliArticoliDallaTabellaDiJoin();
 		categoriaServiceInstance.rimuovi(categoriaInstance.getId());
 		articoloServiceInstance.rimuovi(articoloInstance.getId());
@@ -1023,8 +1029,77 @@ public class TestOrdine {
 		articoloServiceInstance.rimuovi(articoloInstance3.getId());
 		ordineServiceInstance.rimuovi(ordineInstance.getId());
 		ordineServiceInstance.rimuovi(ordineInstance1.getId());
-		
+
 		System.out.println(".......testVoglioLaSommaDeiPrezziDegliArticoliIndirizzatiA fine: PASSED.............");
+
+	}
+
+	private static void testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli(
+			OrdineService ordineServiceInstance, ArticoloService articoloServiceInstance) throws Exception {
+
+		System.out.println(".......testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli inizio.............");
+		
+		// creo ordine e lo inserisco
+		Date dataSpedizione = new SimpleDateFormat("dd-MM-yyyy").parse("03-01-2022");
+		Date dataScadenza = new SimpleDateFormat("dd-MM-yyyy").parse("13-01-2022");
+		Ordine ordineInstance = new Ordine("Diego Mezzo", "Via Fedro 41", dataSpedizione, dataScadenza);
+		ordineServiceInstance.inserisciNuovo(ordineInstance);
+
+		// verifica corretto inserimento
+		if (ordineInstance.getId() == null)
+			throw new RuntimeException(
+					"testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli fallito, ordine non inserito ");
+
+		// creo ordine e lo inserisco
+		Date dataSpedizione1 = new SimpleDateFormat("dd-MM-yyyy").parse("03-02-2022");
+		Date dataScadenza1 = new SimpleDateFormat("dd-MM-yyyy").parse("13-02-2022");
+		Ordine ordineInstance1 = new Ordine("Mario rossi", "Via Cipolla 11", dataSpedizione1, dataScadenza1);
+		ordineServiceInstance.inserisciNuovo(ordineInstance1);
+
+		// verifica corretto inserimento
+		if (ordineInstance1.getId() == null)
+			throw new RuntimeException(
+					"testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli fallito, ordine non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance = new Articolo("Portatile asus", "65132a6845ddax", 750, new Date(), ordineInstance);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance);
+
+		// verifica corretto inserimento
+		if (articoloInstance.getId() == null)
+			throw new RuntimeException(
+					"testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli fallito, articolo non inserito ");
+
+		// creo articolo e lo associo all'ordine
+		Articolo articoloInstance1 = new Articolo("Smartphone Samsung", "65132a6945ddaz", 950, new Date(),
+				ordineInstance1);
+
+		// inserisco articolo
+		articoloServiceInstance.inserisciNuovo(articoloInstance1);
+
+		// verifica corretto inserimento
+		if (articoloInstance1.getId() == null)
+			throw new RuntimeException(
+					"testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli fallito, articolo non inserito ");
+
+		// esecuzione query di ricerca
+		List<String> indirizziOrdiniAventiArticoliConNumeroSerialeContenenteStringa = ordineServiceInstance
+				.trovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli("65132");
+
+		// verifica correttezza query di ricerca
+		if (indirizziOrdiniAventiArticoliConNumeroSerialeContenenteStringa.size() != 2)
+			throw new RuntimeException(
+					"testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli FAILED: non sono presenti indirizzi di ordini aventi articoli il cui numero seriale contiene quella stringa.");
+
+		// reset tabelle
+		articoloServiceInstance.rimuovi(articoloInstance.getId());
+		articoloServiceInstance.rimuovi(articoloInstance1.getId());
+		ordineServiceInstance.rimuovi(ordineInstance.getId());
+		ordineServiceInstance.rimuovi(ordineInstance1.getId());
+		
+		System.out.println(".......testTrovaIndirizziDiOrdiniContenentiStringaNelNumeroSerialeDegliArticoli fine: PASSED.............");
 
 	}
 

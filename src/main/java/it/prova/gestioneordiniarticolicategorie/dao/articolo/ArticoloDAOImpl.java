@@ -88,11 +88,11 @@ public class ArticoloDAOImpl implements ArticoloDAO {
 	}
 
 	@Override
-	public int giveMeTheSumOfPricesForTheArticoliAddressedTo(Ordine ordineInstance) throws Exception {
+	public int giveMeTheSumOfPricesForTheArticoliAddressedTo(String destinatario) throws Exception {
 		TypedQuery<Long> query = entityManager.createQuery(
 				"select sum(a.prezzoSingolo) FROM Articolo a inner join a.ordine o where o.nomeDestinatario = :nomeDestinatario",
 				Long.class);
-		query.setParameter("nomeDestinatario", ordineInstance.getNomeDestinatario());
+		query.setParameter("nomeDestinatario", destinatario);
 		return query.getSingleResult().intValue();
 	}
 

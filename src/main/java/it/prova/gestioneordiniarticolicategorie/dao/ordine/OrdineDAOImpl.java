@@ -8,16 +8,16 @@ import javax.persistence.TypedQuery;
 import it.prova.gestioneordiniarticolicategorie.model.Categoria;
 import it.prova.gestioneordiniarticolicategorie.model.Ordine;
 
-public class OrdineDAOImpl implements OrdineDAO{
+public class OrdineDAOImpl implements OrdineDAO {
 
 	private EntityManager entityManager;
-	
+
 	@Override
 	public void setEntityManager(EntityManager entityManager) {
 		this.entityManager = entityManager;
-		
+
 	}
-	
+
 	@Override
 	public List<Ordine> list() throws Exception {
 		return entityManager.createQuery("from Ordine", Ordine.class).getResultList();
@@ -36,7 +36,7 @@ public class OrdineDAOImpl implements OrdineDAO{
 			throw new Exception("Problema valore in input");
 		}
 		ordineInstance = entityManager.merge(ordineInstance);
-		
+
 	}
 
 	@Override
@@ -45,7 +45,7 @@ public class OrdineDAOImpl implements OrdineDAO{
 			throw new Exception("Problema valore in input");
 		}
 		entityManager.persist(ordineInstance);
-		
+
 	}
 
 	@Override
@@ -54,31 +54,43 @@ public class OrdineDAOImpl implements OrdineDAO{
 			throw new Exception("Problema valore in input");
 		}
 		entityManager.remove(entityManager.merge(ordineInstance));
-		
+
 	}
 
 	@Override
 	public Ordine findByIdFetchingArticoli(Long id) throws Exception {
-		TypedQuery<Ordine> query = entityManager
-				.createQuery("from Ordine o left join fetch o.articoli where o.id = ?1", Ordine.class);
+		TypedQuery<Ordine> query = entityManager.createQuery("from Ordine o left join fetch o.articoli where o.id = ?1",
+				Ordine.class);
 		query.setParameter(1, id);
 		return query.getResultStream().findFirst().orElse(null);
 	}
 
 	@Override
 	public List<Ordine> findAllOrdiniMadeForCategoria(Categoria categoriaInstance) throws Exception {
-		TypedQuery<Ordine> query = entityManager
-				.createQuery("select o from Ordine o inner join fetch o.articoli a inner join fetch a.categorie c where c.id = ?1", Ordine.class);
+		TypedQuery<Ordine> query = entityManager.createQuery(
+				"select o from Ordine o inner join fetch o.articoli a inner join fetch a.categorie c where c.id = ?1",
+				Ordine.class);
 		query.setParameter(1, categoriaInstance.getId());
 		return query.getResultList();
 	}
 
 	@Override
 	public Ordine findMostRecentOrdineWithCategoria(Categoria categoriaInstance) throws Exception {
-		TypedQuery<Ordine> query = entityManager
-				.createQuery("from Ordine o inner join fetch o.articoli a inner join fetch a.categorie c where o.dataSpedizione in ( select min(o.dataSpedizione) from Ordine o) and c.id = ?1 ", Ordine.class);
+		TypedQuery<Ordine> query = entityManager.createQuery(
+				"from Ordine o inner join fetch o.articoli a inner join fetch a.categorie c where o.dataSpedizione in ( select max(o.dataSpedizione) from Ordine o) and c.id = ?1 ",
+				Ordine.class);
 		query.setParameter(1, categoriaInstance.getId());
 		return query.getSingleResult();
+	}
+
+	@Override
+	public List<String> findAllIndirizziOfOrdiniHavingAStringInTheSerialNumberOfHisArticoli(String input)
+			throws Exception {
+		TypedQuery<String> query = entityManager.createQuery(
+				"select distinct o.indirizzoSpedizione from Ordine o inner join o.articoli a where a.numeroSeriale like ?1 ",
+				String.class);
+		query.setParameter(1, "%" + input + "%");
+		return query.getResultList();
 	}
 
 }

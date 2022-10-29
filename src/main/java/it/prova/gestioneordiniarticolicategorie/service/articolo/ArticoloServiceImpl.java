@@ -267,7 +267,7 @@ public class ArticoloServiceImpl implements ArticoloService {
 	}
 
 	@Override
-	public int voglioLaSommaDeiPrezziDegliArticoliIndirizzatiA(Ordine ordineInstance) throws Exception {
+	public int voglioLaSommaDeiPrezziDegliArticoliIndirizzatiA(String destinatario) throws Exception {
 		// questo è come una connection
 		EntityManager entityManager = EntityManagerUtil.getEntityManager();
 
@@ -276,7 +276,7 @@ public class ArticoloServiceImpl implements ArticoloService {
 			articoloDAO.setEntityManager(entityManager);
 
 			// eseguo quello che realmente devo fare
-			return articoloDAO.giveMeTheSumOfPricesForTheArticoliAddressedTo(ordineInstance);
+			return articoloDAO.giveMeTheSumOfPricesForTheArticoliAddressedTo(destinatario);
 
 		} catch (Exception e) {
 			e.printStackTrace();

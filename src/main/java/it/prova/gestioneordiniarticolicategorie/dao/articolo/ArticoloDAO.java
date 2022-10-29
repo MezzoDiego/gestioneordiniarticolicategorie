@@ -15,7 +15,7 @@ public interface ArticoloDAO extends IBaseDAO<Articolo>{
 
 	public int giveMetheSumOfPricesOfCategoriasArticoli(Categoria categoriaInstance) throws Exception;
 	
-	public int giveMeTheSumOfPricesForTheArticoliAddressedTo(Ordine ordineInstance) throws Exception;
+	public int giveMeTheSumOfPricesForTheArticoliAddressedTo(String destinatario) throws Exception;
 
 
 }

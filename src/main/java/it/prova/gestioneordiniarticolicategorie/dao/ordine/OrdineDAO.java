@@ -13,6 +13,9 @@ public interface OrdineDAO extends IBaseDAO<Ordine>{
 	public List<Ordine> findAllOrdiniMadeForCategoria(Categoria categoriaInstance) throws Exception;
 	
 	public Ordine findMostRecentOrdineWithCategoria(Categoria categoriaInstance) throws Exception;
+	
+	public List<String> findAllIndirizziOfOrdiniHavingAStringInTheSerialNumberOfHisArticoli(String input) throws Exception;
+
 
 
 }

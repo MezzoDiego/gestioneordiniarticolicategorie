@@ -32,5 +32,5 @@ public interface ArticoloService {
 		
 	public int voglioLaSommaDeiPrezziDegliArticoliDellaCategoria(Categoria categoriaInstance) throws Exception;
 	
-	public int voglioLaSommaDeiPrezziDegliArticoliIndirizzatiA(Ordine ordineInstance) throws Exception;
+	public int voglioLaSommaDeiPrezziDegliArticoliIndirizzatiA(String destinatario) throws Exception;
 }
